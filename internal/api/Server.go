@@ -8,7 +8,7 @@ import (
 	"log"
 )
 
-// TODO: Change sql.DB to gorm.DB
+// TODO: Check if gorm.DB is better than sql.DB
 type Server struct {
 	config   *config.Configurations
 	database *sql.DB
