@@ -10,6 +10,8 @@ import (
 )
 
 func main() {
+
+	// TODO: Extract Config to a function
 	// Set the file name of configuration file
 	viper.SetConfigName("config")
 
