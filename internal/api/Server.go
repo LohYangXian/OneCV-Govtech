@@ -1,16 +1,21 @@
 package api
 
 import (
+	"database/sql"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/lohyangxian/OneCV-Govtech/config"
 	"log"
 )
 
+// TODO: Change sql.DB to gorm.DB
 type Server struct {
-	config   *Config
-	database *Database
+	config   *config.Configurations
+	database *sql.DB
+	router   *gin.Engine
 }
 
-func NewServer(config *Config, database *Database) (*Server, error) {
+func NewServer(config *config.Configurations, database *sql.DB) (*Server, error) {
 	server := &Server{
 		config:   config,
 		database: database,
@@ -37,7 +42,15 @@ func (s *Server) initRoutes() {
 	api.POST("/suspend", s.Suspend)
 	api.POST("/retrievefornotifications", s.RetrieveForNotifications)
 
-	err := router.Run(s.config.Address)
+	port := s.config.Server.Port
+	var address string
+	if port == "" {
+		address = ":3000"
+	} else {
+		address = ":" + port
+	}
+
+	err := router.Run(address)
 	if err != nil {
 		log.Fatal("Failed to start server: ", err)
 	}

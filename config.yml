@@ -1,0 +1,11 @@
+server:
+  port: 3000
+
+database:
+  dbname: postgres
+  dbuser: postgres
+  dbpassword: root123
+  port: 5432
+
+environment: dev
+
