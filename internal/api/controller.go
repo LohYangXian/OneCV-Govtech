@@ -88,7 +88,7 @@ func (s *Server) Register(c *gin.Context) {
 // @Success 200 {object} string "Success"
 // @Router /api/commonstudents [get]
 func (s *Server) CommonStudents(c *gin.Context) {
-	var teacherEmails []string = c.QueryArray("teacher")
+	var teacherEmails = c.QueryArray("teacher")
 
 	if len(teacherEmails) == 0 {
 		responseError := errors.NewBadRequestError("missing required field: teacher")
