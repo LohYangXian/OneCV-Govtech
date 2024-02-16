@@ -1,14 +1,16 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
 	"github.com/lohyangxian/OneCV-Govtech/config"
 	"github.com/lohyangxian/OneCV-Govtech/internal/api"
 	"github.com/spf13/viper"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
+// TODO: Extract DB Connection to db.go
 func main() {
 
 	// TODO: Extract Config to a function
@@ -37,13 +39,6 @@ func main() {
 		fmt.Printf("Unable to decode into struct, %v", err)
 	}
 
-	// Construct db connection string
-	connectionString := fmt.Sprintf("host=localhost port=%d dbname=%s user=%s password=%s sslmode=disable",
-		configuration.Database.Port,
-		configuration.Database.DBName,
-		configuration.Database.DBUser,
-		configuration.Database.DBPassword)
-
 	//TESTING
 	//TODO: REMOVE ONCE DONE
 	// Reading variables using the model
@@ -57,8 +52,16 @@ func main() {
 	fmt.Println("DB Password is\t", configuration.Database.DBPassword)
 
 	// Open a connection to the database
+	dsn := fmt.Sprintf("host=localhost user=%s password=%s dbname=%s port=%s sslmode=disable",
+		configuration.Database.DBUser,
+		configuration.Database.DBPassword,
+		configuration.Database.DBName,
+		configuration.Database.Port,
+	)
+
 	//TODO: Extract this to a function
-	db, err := sql.Open("postgres", connectionString)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+
 	if err != nil {
 		fmt.Printf("Error connecting to database, %v", err)
 		return
@@ -82,17 +85,6 @@ func main() {
 	err = server.Start(address)
 	if err != nil {
 		fmt.Printf("Error starting server, %v", err)
-		return
-	}
-
-	// Defer the close till after the main function has finished
-	defer db.Close()
-
-	// Test the connection
-	//TODO: REMOVE ONCE DONE
-	//TODO: Extract this to a function
-	if err := db.Ping(); err != nil {
-		fmt.Printf("Error pinging database: %s\n", err)
 		return
 	}
 

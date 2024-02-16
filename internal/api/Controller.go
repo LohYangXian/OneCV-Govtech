@@ -31,8 +31,8 @@ import (
 // @Router /api/register [post]
 func (s *Server) Register(c *gin.Context) {
 	var requestBody struct {
-		Teacher  string   `json:"teacher" binding:"required"`
-		Students []string `json:"students" binding:"required"`
+		TeacherEmail  string   `json:"teacher" binding:"required"`
+		StudentEmails []string `json:"students" binding:"required"`
 	}
 
 	err := c.ShouldBindJSON(&requestBody)
@@ -43,7 +43,7 @@ func (s *Server) Register(c *gin.Context) {
 		return
 	}
 
-	err = services.RegisterStudentsToTeachers()
+	err = services.RegisterStudentsToTeacher(s.database, requestBody.StudentEmails, requestBody.TeacherEmail)
 
 	//TODO: Create custom error message
 	if err != nil {
@@ -88,15 +88,15 @@ func (s *Server) Register(c *gin.Context) {
 // @Success 200 {object} string "Success"
 // @Router /api/commonstudents [get]
 func (s *Server) CommonStudents(c *gin.Context) {
-	var teachers []string = c.QueryArray("teacher")
+	var teacherEmails []string = c.QueryArray("teacher")
 
 	//TODO: Create custom error message
-	if len(teachers) == 0 {
+	if len(teacherEmails) == 0 {
 		c.AbortWithStatusJSON(400, gin.H{"error": "No teacher email address provided"})
 		return
 	}
 
-	students, err := services.GetCommonStudents()
+	students, err := services.GetCommonStudentEmails(s.database, teacherEmails)
 
 	//TODO: Create custom error message
 	if err != nil {
@@ -129,7 +129,7 @@ func (s *Server) CommonStudents(c *gin.Context) {
 // @Router /api/suspend [post]
 func (s *Server) Suspend(c *gin.Context) {
 	var requestBody struct {
-		Student string `json:"student" binding:"required"`
+		StudentEmail string `json:"student" binding:"required"`
 	}
 
 	err := c.ShouldBindJSON(&requestBody)
@@ -140,7 +140,7 @@ func (s *Server) Suspend(c *gin.Context) {
 		return
 	}
 
-	err = services.SuspendStudent()
+	err = services.SuspendStudent(s.database, requestBody.StudentEmail)
 
 	if err != nil {
 		c.AbortWithStatusJSON(400, gin.H{"error": err.Error()})
@@ -200,7 +200,7 @@ func (s *Server) Suspend(c *gin.Context) {
 // @Router /api/retrievefornotifications [post]
 func (s *Server) RetrieveForNotifications(c *gin.Context) {
 	var requestBody struct {
-		Teacher      string `json:"teacher" binding:"required"`
+		TeacherEmail string `json:"teacher" binding:"required"`
 		Notification string `json:"notification" binding:"required"`
 	}
 
@@ -212,7 +212,7 @@ func (s *Server) RetrieveForNotifications(c *gin.Context) {
 		return
 	}
 
-	recipients, err := services.RetrieveForNotifications()
+	recipients, err := services.RetrieveForNotifications(s.database, requestBody.TeacherEmail, requestBody.Notification)
 
 	//TODO: Create custom error message
 	if err != nil {

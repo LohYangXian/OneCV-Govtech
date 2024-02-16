@@ -1,3 +1,3 @@
-DROP TABLE IF EXISTS teacher_students;
+DROP TABLE IF EXISTS teacher_student;
 DROP TABLE IF EXISTS students;
 DROP TABLE IF EXISTS teachers;

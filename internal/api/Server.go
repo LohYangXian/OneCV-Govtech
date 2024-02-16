@@ -1,21 +1,20 @@
 package api
 
 import (
-	"database/sql"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/lohyangxian/OneCV-Govtech/config"
+	"gorm.io/gorm"
 	"log"
 )
 
-// TODO: Check if gorm.DB is better than sql.DB
 type Server struct {
 	config   *config.Configurations
-	database *sql.DB
+	database *gorm.DB
 	router   *gin.Engine
 }
 
-func NewServer(config *config.Configurations, database *sql.DB) (*Server, error) {
+func NewServer(config *config.Configurations, database *gorm.DB) (*Server, error) {
 	server := &Server{
 		config:   config,
 		database: database,
