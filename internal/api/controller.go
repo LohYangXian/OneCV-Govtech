@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/lohyangxian/OneCV-Govtech/internal/errors"
 	"github.com/lohyangxian/OneCV-Govtech/internal/services"
 )
 
@@ -37,21 +38,20 @@ func (s *Server) Register(c *gin.Context) {
 
 	err := c.ShouldBindJSON(&requestBody)
 
-	//TODO: Create custom error message
 	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{"error": err.Error()})
+		responseError := errors.NewBadRequestError("missing required fields: teacher / students")
+		c.AbortWithStatusJSON(responseError.Status(), gin.H{"message": responseError.Error()})
 		return
 	}
 
 	err = services.RegisterStudentsToTeacher(s.database, requestBody.StudentEmails, requestBody.TeacherEmail)
 
-	//TODO: Create custom error message
 	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{"error": err.Error()})
+		responseError := errors.NewNotFoundError("student or teacher not found")
+		c.AbortWithStatusJSON(responseError.Status(), gin.H{"message": responseError.Error()})
 		return
 	}
 
-	//TODO: Create custom success message
 	c.JSONP(204, "Success")
 }
 
@@ -90,21 +90,20 @@ func (s *Server) Register(c *gin.Context) {
 func (s *Server) CommonStudents(c *gin.Context) {
 	var teacherEmails []string = c.QueryArray("teacher")
 
-	//TODO: Create custom error message
 	if len(teacherEmails) == 0 {
-		c.AbortWithStatusJSON(400, gin.H{"error": "No teacher email address provided"})
+		responseError := errors.NewBadRequestError("missing required field: teacher")
+		c.AbortWithStatusJSON(responseError.Status(), gin.H{"message": responseError.Error()})
 		return
 	}
 
 	students, err := services.GetCommonStudentEmails(s.database, teacherEmails)
 
-	//TODO: Create custom error message
 	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{"error": err.Error()})
+		responseError := errors.NewNotFoundError("teacher not found")
+		c.AbortWithStatusJSON(responseError.Status(), gin.H{"message": responseError.Error()})
 		return
 	}
 
-	//TODO: Create custom success message, create constant variables for status code
 	c.JSONP(200, gin.H{"students": students})
 }
 
@@ -134,21 +133,20 @@ func (s *Server) Suspend(c *gin.Context) {
 
 	err := c.ShouldBindJSON(&requestBody)
 
-	//TODO: Create custom error message
 	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{"error": err.Error()})
+		responseError := errors.NewBadRequestError("missing required field: student")
+		c.AbortWithStatusJSON(responseError.Status(), gin.H{"message": responseError.Error()})
 		return
 	}
 
 	err = services.SuspendStudent(s.database, requestBody.StudentEmail)
 
 	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{"error": err.Error()})
+		responseError := errors.NewNotFoundError("student not found")
+		c.AbortWithStatusJSON(responseError.Status(), gin.H{"message": responseError.Error()})
 		return
-
 	}
 
-	//TODO: Create custom success message
 	c.JSONP(204, "Success")
 }
 
@@ -206,17 +204,17 @@ func (s *Server) RetrieveForNotifications(c *gin.Context) {
 
 	err := c.ShouldBindJSON(&requestBody)
 
-	//TODO: Create custom error message
 	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{"error": err.Error()})
+		responseError := errors.NewBadRequestError("missing required fields: teacher / notification")
+		c.AbortWithStatusJSON(responseError.Status(), gin.H{"message": responseError.Error()})
 		return
 	}
 
 	recipients, err := services.RetrieveForNotifications(s.database, requestBody.TeacherEmail, requestBody.Notification)
 
-	//TODO: Create custom error message
 	if err != nil {
-		c.AbortWithStatusJSON(400, gin.H{"error": err.Error()})
+		responseError := errors.NewNotFoundError("student or teacher not found")
+		c.AbortWithStatusJSON(responseError.Status(), gin.H{"message": responseError.Error()})
 		return
 	}
 

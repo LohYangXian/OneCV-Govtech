@@ -39,18 +39,6 @@ func main() {
 		fmt.Printf("Unable to decode into struct, %v", err)
 	}
 
-	//TESTING
-	//TODO: REMOVE ONCE DONE
-	// Reading variables using the model
-	fmt.Println("Reading variables using the model..")
-
-	fmt.Println("Connected on port \t", configuration.Server.Port)
-	fmt.Println("Database is\t", configuration.Database.DBName)
-	fmt.Println("and Port is\t\t", configuration.Database.Port)
-	fmt.Println("Environment is\t", configuration.Environment)
-	fmt.Println("DB User is\t", configuration.Database.DBUser)
-	fmt.Println("DB Password is\t", configuration.Database.DBPassword)
-
 	// Open a connection to the database
 	dsn := fmt.Sprintf("host=localhost user=%s password=%s dbname=%s port=%s sslmode=disable",
 		configuration.Database.DBUser,
