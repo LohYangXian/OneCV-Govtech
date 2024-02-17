@@ -221,6 +221,8 @@ This Markdown representation provides a visual representation of your project's 
 
 - ***Improve Validation of Request Payloads***: The API should have better validation for e.g. valid emails to ensure that the data is in the correct format and contains all the required fields.
 - ***Improve Error Handling***: The error handling can be improved to provide more detailed error messages to the client.
+- ***Improve Handling of Environment Variables***: Currently there are 2 functions to load environment variables from config and also to overwrite the variables from docker-compose. 
+It would be better if its refactored as it's not feasible if the number of environment variables increases in the future. 
 - ***Improve Efficiency of Retrieving Common Students***: The current implementation of retrieving common students is not efficient. It can be improved to reduce the number of database queries.
 - ***Potential Refactoring of Code***: The data structure of the models can be refactored to allow more efficient SQL queries
 - ***Hosting the API***: The API should be hosted on a cloud platform to make it accessible to the public.
