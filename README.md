@@ -123,8 +123,6 @@ Make sure you have the following installed on your system:
 └── README.md
 ```
 
-This Markdown representation provides a visual representation of your project's folder structure. You can paste it into your README.md file to help users understand the organization of your project's codebase.
-
 ## API Endpoints
 
 ### 1. Register Students to a Teacher
