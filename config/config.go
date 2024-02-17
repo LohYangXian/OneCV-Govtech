@@ -12,6 +12,7 @@ type ServerConfig struct {
 }
 
 type DatabaseConfig struct {
+	DBHost     string
 	DBName     string
 	DBUser     string
 	DBPassword string
@@ -19,6 +20,7 @@ type DatabaseConfig struct {
 }
 
 type TestDatabaseConfig struct {
+	TestDBHost     string
 	TestDBName     string
 	TestDBUser     string
 	TestDBPassword string

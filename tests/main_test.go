@@ -28,6 +28,7 @@ var testDB *gorm.DB
 var err error
 var studentService services.StudentService
 var teacherService services.TeacherService
+var configurations config.Configurations
 
 func TestMain(m *testing.M) {
 
@@ -59,26 +60,13 @@ func TestMain(m *testing.M) {
 func SetUpMockServer(testDB *gorm.DB) (*gin.Engine, *api.Server) {
 	router := gin.New()
 
-	mockConfig := &config.Configurations{
-		Server: config.ServerConfig{
-			Port: "3000",
-		},
-		Database: config.DatabaseConfig{
-			DBUser:     "root",
-			DBPassword: "root123",
-			DBName:     "govtechdb_test",
-			Port:       "5432",
-		},
-		Environment: "test",
-	}
-
 	mockTeacherService := &mocks.MockTeacherService{}
 	mockStudentService := &mocks.MockStudentService{}
 
 	mockServer := &api.Server{
 		StudentService: mockStudentService,
 		TeacherService: mockTeacherService,
-		Config:         mockConfig,
+		Config:         &configurations,
 		Database:       testDB,
 		Router:         router,
 	}
@@ -87,7 +75,8 @@ func SetUpMockServer(testDB *gorm.DB) (*gin.Engine, *api.Server) {
 }
 
 func SetUpTestDBConnection(configuration config.Configurations) (*gorm.DB, error) {
-	dsn := fmt.Sprintf("host=localhost user=%s password=%s dbname=%s port=%s sslmode=disable",
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+		configuration.TestDatabase.TestDBHost,
 		configuration.TestDatabase.TestDBUser,
 		configuration.TestDatabase.TestDBPassword,
 		configuration.TestDatabase.TestDBName,

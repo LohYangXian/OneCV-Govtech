@@ -8,7 +8,8 @@ import (
 )
 
 func ConnectToDB(configuration config.Configurations) *gorm.DB {
-	dsn := fmt.Sprintf("host=localhost user=%s password=%s dbname=%s port=%s sslmode=disable",
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+		configuration.Database.DBHost,
 		configuration.Database.DBUser,
 		configuration.Database.DBPassword,
 		configuration.Database.DBName,
