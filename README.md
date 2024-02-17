@@ -111,6 +111,11 @@ This Markdown representation provides a visual representation of your project's 
 
 - **Success Response**:
     - HTTP Status Code: `204 No Content`
+- **Error Responses**:
+    - HTTP Status Code: `400 Bad Request`
+      - When the request payload is invalid or missing required fields.
+    - HTTP Status Code: `404 Not Found`
+      - When the teacher or student does not exist in the database.
 
 ### 2. Retrieve Common Students
 
@@ -130,6 +135,11 @@ This Markdown representation provides a visual representation of your project's 
         "students": ["commonstudent1@gmail.com", "commonstudent2@gmail.com"]
     }
     ```
+- **Error Responses**:
+- HTTP Status Code: `400 Bad Request`
+  - When the request payload is invalid or missing required fields.
+- HTTP Status Code: `404 Not Found`
+  - When the teacher does not exist in the database.
 
 ### 3. Suspend a Student
 
@@ -144,6 +154,11 @@ This Markdown representation provides a visual representation of your project's 
 
 - **Success Response**:
     - HTTP Status Code: `204 No Content`
+- **Error Responses**:
+    - HTTP Status Code: `400 Bad Request`
+      - When the request payload is invalid or missing required fields.
+    - HTTP Status Code: `404 Not Found`
+      - When the student does not exist in the database.
 
 ### 4. Retrieve Students for Notifications
 
@@ -166,10 +181,16 @@ This Markdown representation provides a visual representation of your project's 
         "recipients": ["studentbob@gmail.com", "studentagnes@gmail.com", "studentmiche@gmail.com"]
     }
     ```
+- **Error Responses**:
+- HTTP Status Code: `400 Bad Request`
+  - When the request payload is invalid or missing required fields.
+- HTTP Status Code: `404 Not Found`
+  - When the teacher does not exist in the database.
 
 ## Future Improvements
 
 - ***Improve Validation of Request Payloads***: The API should have better validation for e.g. valid emails to ensure that the data is in the correct format and contains all the required fields.
+- ***Improve Error Handling***: The error handling can be improved to provide more detailed error messages to the client.
 - ***Improve Efficiency of Retrieving Common Students***: The current implementation of retrieving common students is not efficient. It can be improved to reduce the number of database queries.
 - ***Potential Refactoring of Code***: The data structure of the models can be refactored to allow more efficient SQL queries
 - ***Hosting the API***: The API should be hosted on a cloud platform to make it accessible to the public.
