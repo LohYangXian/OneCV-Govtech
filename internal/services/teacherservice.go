@@ -15,11 +15,14 @@ type TeacherService interface {
 }
 
 type TeacherServiceImpl struct {
-	DB *gorm.DB
+	DB             *gorm.DB
+	StudentService StudentService
 }
 
 func NewTeacherService(db *gorm.DB) TeacherService {
-	return &TeacherServiceImpl{DB: db}
+	return &TeacherServiceImpl{
+		DB:             db,
+		StudentService: NewStudentService(db)}
 }
 
 func (s *TeacherServiceImpl) GetTeacher(db *gorm.DB, teacherEmail string) (models.Teacher, error) {
@@ -74,9 +77,7 @@ func (s *TeacherServiceImpl) RegisterStudentsToTeacher(db *gorm.DB, studentEmail
 		return err
 	}
 
-	studentService := StudentServiceImpl{}
-
-	students, err := studentService.GetStudents(db, studentEmails)
+	students, err := s.StudentService.GetStudents(db, studentEmails)
 
 	if err != nil || len(students) != len(studentEmails) {
 		return errors.New("student not found")
@@ -93,6 +94,8 @@ func (s *TeacherServiceImpl) RegisterStudentsToTeacher(db *gorm.DB, studentEmail
 
 func (s *TeacherServiceImpl) GetCommonStudentEmails(db *gorm.DB, teacherEmails []string) ([]string, error) {
 	var studentEmails []string
+
+	teacherEmails = s.RemoveDuplicates(teacherEmails)
 
 	for _, email := range teacherEmails {
 		_, err := s.GetTeacher(db, email)
@@ -151,14 +154,12 @@ func (s *TeacherServiceImpl) RetrieveForNotifications(db *gorm.DB, teacherEmail 
 		return studentEmails, err
 	}
 
-	studentService := StudentServiceImpl{}
-
 	for _, email := range studentEmailsFromNotification {
-		_, err = studentService.GetStudent(db, email)
+		_, err = s.StudentService.GetStudent(db, email)
 		if err != nil {
 			return studentEmails, err
 		}
-		if studentService.CheckSuspension(db, email) == false {
+		if s.StudentService.CheckSuspension(db, email) == false {
 			studentEmails = append(studentEmails, email)
 		}
 	}

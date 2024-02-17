@@ -9,8 +9,9 @@ import (
 func TestGetStudent(t *testing.T) {
 	//Create a new instance of student service
 
+	var existingStudent models.Student
 	existingStudentEmail := "student1@example.com"
-	existingStudent, err := studentService.GetStudent(testDB, existingStudentEmail)
+	existingStudent, err = studentService.GetStudent(testDB, existingStudentEmail)
 	if err != nil {
 		t.Errorf("Error getting student: %v", err)
 	}
