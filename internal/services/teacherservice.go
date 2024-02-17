@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/lohyangxian/OneCV-Govtech/internal/models"
 	"gorm.io/gorm"
+	"log"
 	"regexp"
 )
 
@@ -37,12 +38,14 @@ func (s *TeacherServiceImpl) RemoveDuplicates(users []string) []string {
 	seen := make(map[string]bool)
 	var result []string
 
+	log.Println(seen)
 	for _, user := range users {
 		if !seen[user] {
 			result = append(result, user)
 			seen[user] = true
 		}
 	}
+
 	return result
 }
 

@@ -1,9 +1,10 @@
 package config
 
 type Configurations struct {
-	Server      ServerConfig
-	Database    DatabaseConfig
-	Environment string
+	Server       ServerConfig
+	Database     DatabaseConfig
+	TestDatabase TestDatabaseConfig
+	Environment  string
 }
 
 type ServerConfig struct {
@@ -15,4 +16,11 @@ type DatabaseConfig struct {
 	DBUser     string
 	DBPassword string
 	Port       string
+}
+
+type TestDatabaseConfig struct {
+	TestDBName     string
+	TestDBUser     string
+	TestDBPassword string
+	TestPort       string
 }

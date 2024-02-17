@@ -2,10 +2,16 @@ server:
   port: 3000
 
 database:
-  dbname: postgres
-  dbuser: postgres
+  dbname: govtechdb_dev
+  dbuser: root
   dbpassword: root123
   port: 5432
+
+testdatabase:
+  testdbname: govtechdb_test
+  testdbuser: root
+  testdbpassword: root123
+  testport: 5432
 
 environment: dev
 

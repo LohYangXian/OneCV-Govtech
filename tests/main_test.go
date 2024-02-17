@@ -8,6 +8,7 @@ import (
 	"github.com/lohyangxian/OneCV-Govtech/internal/api"
 	"github.com/lohyangxian/OneCV-Govtech/internal/services"
 	"github.com/lohyangxian/OneCV-Govtech/tests/mocks"
+	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"os"
@@ -29,8 +30,12 @@ var studentService services.StudentService
 var teacherService services.TeacherService
 
 func TestMain(m *testing.M) {
+
+	// Load the configuration
+	configuration := loadTestConfig()
+
 	// Set up the test database
-	testDB, err = SetUpTestDBConnection()
+	testDB, err = SetUpTestDBConnection(configuration)
 	if err != nil {
 		fmt.Println("failed to connect to the test database", err)
 		os.Exit(1)
@@ -81,8 +86,16 @@ func SetUpMockServer(testDB *gorm.DB) (*gin.Engine, *api.Server) {
 	return router, mockServer
 }
 
-func SetUpTestDBConnection() (*gorm.DB, error) {
-	db, err := gorm.Open(postgres.Open("host=localhost user=root password=root123 dbname=govtechdb_test port=5432 sslmode=disable"), &gorm.Config{})
+func SetUpTestDBConnection(configuration config.Configurations) (*gorm.DB, error) {
+	dsn := fmt.Sprintf("host=localhost user=%s password=%s dbname=%s port=%s sslmode=disable",
+		configuration.TestDatabase.TestDBUser,
+		configuration.TestDatabase.TestDBPassword,
+		configuration.TestDatabase.TestDBName,
+		configuration.TestDatabase.TestPort,
+	)
+
+	var db *gorm.DB
+	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		fmt.Println("failed to connect to the test database", err)
 		return db, err
@@ -99,4 +112,26 @@ func SetUpTestDB(db *gorm.DB) {
 func TearDownTestDB(db *gorm.DB) {
 	//Execute SQL script to delete test data
 	db = db.Exec(dropTablesSQL)
+}
+
+func loadTestConfig() config.Configurations {
+	viper.SetConfigName("config")
+	viper.AddConfigPath("..")
+	//viper.AddConfigPath("")
+	viper.AutomaticEnv()
+	viper.SetConfigType("yml")
+
+	var configuration config.Configurations
+	if err := viper.ReadInConfig(); err != nil {
+		fmt.Printf("Error reading config file, %s", err)
+	}
+
+	err := viper.Unmarshal(&configuration)
+	if err != nil {
+		fmt.Printf("Unable to decode config into struct, %v", err)
+	}
+
+	viper.SetDefault("database.dbname", "govtech_db_test")
+
+	return configuration
 }

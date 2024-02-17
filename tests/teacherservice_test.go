@@ -161,12 +161,6 @@ func TestRetrieveForNotifications(t *testing.T) {
 	assert.Error(t, err, "Error should be returned when student is not found")
 
 	notification := "Hello students! @student1@example.com @student2@example.com @student9@example.com"
-	expectedStudentEmailsFromNotification := []string{
-		"student1@example.com",
-		"student2@example.com",
-		"student9@example.com",
-	}
-	assert.ElementsMatch(t, expectedStudentEmailsFromNotification, expectedStudentEmailsFromNotification, "Student emails from notification should be the same")
 
 	var studentEmails []string
 	studentEmails, err = teacherService.RetrieveForNotifications(testDB, teacherEmail, notification)
