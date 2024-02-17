@@ -6,46 +6,76 @@ This API allows teachers to perform administrative functions for their students.
 
 - Currently, the API is not hosted. You need to run it locally to test the functionality.
 
-## Running the API Locally
+## Setup Instructions
 
-To run the API locally, follow these instructions:
+To set up and run the project locally, follow these steps:
 
-1. **Clone the Repository**: Clone the OneCV-Govtech repository to your local machine.
+### Prerequisites
 
-    ```bash
-    git clone <repository_url>
-    ```
+Make sure you have the following installed on your system:
 
-2. **Navigate to the Project Directory**: Move into the cloned project directory.
+- Docker (if you want to run the project using Docker)
+- Docker Compose (if you want to run the project using Docker)
+- Go (if you want to run the project without Docker)
+- PostgreSQL (if you want to run the project without Docker)
 
-    ```bash
-    cd OneCV-Govtech
-    ```
+### Steps
 
-3. **Set Up Configuration**:
-    - Update the database configuration in `config.yml` according to your local setup.
+1. Clone this repository to your local machine.
+
+   ```bash
+   git clone https://github.com/LohYangXian/OneCV-Govtech.git
+   ```
+
+2. Navigate to the project directory.
+
+   ```bash
+   cd OneCV-Govtech
+   ```
+
+3. Build the Docker containers.
+
+   ```bash
+   docker-compose build
+   ```
+
+4. Run the Docker containers.
+
+   ```bash
+   docker-compose up
+   ```
+
+5. Once the containers are up and running, you can run the tests using the following command:
+
+   ```bash
+   docker-compose exec app make test
+   ```
+
+    This will execute the tests inside the Docker container for the application.
 
 
-4. **Build and Run the API**:
-    - Ensure you have Go installed on your system.
-    - Run the following command to build and start the API server:
+6. **Setting up without Docker**:
 
-    ```bash
+   If you want to set up the project without Docker, you can follow the instructions below:
+
+   - Ensure you have Go installed on your system.
+   - Ensure you have PostgreSQL installed on your system and run a PostgreSQL server.
+   - Update the database configuration in `config.yml` according to your local setup.
+   - Run the following command to build and start the API server:
+
+   ```bash
    make build
-    make run
-    ```
-
-5. **Access the API**:
-    - The API will be available at `http://localhost:3000`.
-
-
-6. **Run Tests**:
-    - Run the following command to execute the tests:
+   make run
+   ```
+   
+    - To execute the tests, run the following command:
 
     ```bash
     make test
     ```
 
+7. **Access the API**:
+   The API will be available at `http://localhost:3000`.
 
 ## Project Folder Structure
 

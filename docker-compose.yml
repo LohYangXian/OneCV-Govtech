@@ -35,7 +35,7 @@ services:
       TEST_DB_NAME: govtechdb_test
       TEST_DB_USER: root
       TEST_DB_PASSWORD: root123
-      TEST_DB_PORT: 5433
+      TEST_DB_PORT: 5432
       ENVIRONMENT: dev
     ports:
         - "3000:3000"
