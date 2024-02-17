@@ -4,20 +4,25 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/lohyangxian/OneCV-Govtech/config"
+	"github.com/lohyangxian/OneCV-Govtech/internal/services"
 	"gorm.io/gorm"
 	"log"
 )
 
 type Server struct {
-	config   *config.Configurations
-	database *gorm.DB
-	router   *gin.Engine
+	StudentService services.StudentService
+	TeacherService services.TeacherService
+	Config         *config.Configurations
+	Database       *gorm.DB
+	Router         *gin.Engine
 }
 
-func NewServer(config *config.Configurations, database *gorm.DB) (*Server, error) {
+func NewServer(studentService services.StudentService, teacherService services.TeacherService, config *config.Configurations, database *gorm.DB) (*Server, error) {
 	server := &Server{
-		config:   config,
-		database: database,
+		StudentService: studentService,
+		TeacherService: teacherService,
+		Config:         config,
+		Database:       database,
 	}
 
 	server.initRoutes()
@@ -41,7 +46,7 @@ func (s *Server) initRoutes() {
 	api.POST("/suspend", s.Suspend)
 	api.POST("/retrievefornotifications", s.RetrieveForNotifications)
 
-	port := s.config.Server.Port
+	port := s.Config.Server.Port
 	var address string
 	if port == "" {
 		address = ":3000"
@@ -54,9 +59,9 @@ func (s *Server) initRoutes() {
 		log.Fatal("Failed to start server: ", err)
 	}
 
-	s.router = router
+	s.Router = router
 }
 
 func (s *Server) Start(address string) error {
-	return s.router.Run(address)
+	return s.Router.Run(address)
 }

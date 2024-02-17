@@ -5,12 +5,22 @@ import (
 	"gorm.io/gorm"
 )
 
-// TODO: Check if this function is required
-func CreateStudent() error {
-	return nil
+type StudentService interface {
+	GetStudent(db *gorm.DB, studentEmail string) (models.Student, error)
+	GetStudents(db *gorm.DB, studentEmails []string) ([]models.Student, error)
+	CheckSuspension(db *gorm.DB, studentEmail string) bool
+	SuspendStudent(db *gorm.DB, studentEmail string) error
 }
 
-func GetStudent(db *gorm.DB, studentEmail string) (models.Student, error) {
+type StudentServiceImpl struct {
+	DB *gorm.DB
+}
+
+func NewStudentService(db *gorm.DB) StudentService {
+	return &StudentServiceImpl{DB: db}
+}
+
+func (s *StudentServiceImpl) GetStudent(db *gorm.DB, studentEmail string) (models.Student, error) {
 	var student models.Student
 	err := db.Model(models.Student{}).Where("email = ?", studentEmail).First(&student).Error
 
@@ -21,21 +31,21 @@ func GetStudent(db *gorm.DB, studentEmail string) (models.Student, error) {
 	return student, nil
 }
 
-func GetStudents(db *gorm.DB, studentEmails []string) ([]models.Student, error) {
+func (s *StudentServiceImpl) GetStudents(db *gorm.DB, studentEmails []string) ([]models.Student, error) {
 	var students []models.Student
 	err := db.Model(models.Student{}).Where("email IN ?", studentEmails).Find(&students).Error
 	return students, err
 }
 
-func CheckSuspension(db *gorm.DB, studentEmail string) bool {
+func (s *StudentServiceImpl) CheckSuspension(db *gorm.DB, studentEmail string) bool {
 	var status string
 	db.Model(&models.Student{}).Select("status").Where("email = ?", studentEmail).First(&status)
 
 	return status == "suspended"
 }
 
-func SuspendStudent(db *gorm.DB, studentEmail string) error {
-	student, err := GetStudent(db, studentEmail)
+func (s *StudentServiceImpl) SuspendStudent(db *gorm.DB, studentEmail string) error {
+	student, err := s.GetStudent(db, studentEmail)
 
 	// Suspend the student's email
 	err = db.Model(&student).Update("status", "suspended").Error

@@ -1,17 +1,28 @@
 package services
 
 import (
+	"errors"
 	"github.com/lohyangxian/OneCV-Govtech/internal/models"
 	"gorm.io/gorm"
 	"regexp"
 )
 
-// TODO: Check if this function is required
-func CreateTeacher() error {
-	return nil
+type TeacherService interface {
+	GetTeacher(db *gorm.DB, teacherEmail string) (models.Teacher, error)
+	RegisterStudentsToTeacher(db *gorm.DB, studentEmails []string, teacherEmail string) error
+	GetCommonStudentEmails(db *gorm.DB, teacherEmails []string) ([]string, error)
+	RetrieveForNotifications(db *gorm.DB, teacherEmail string, notification string) ([]string, error)
 }
 
-func GetTeacher(db *gorm.DB, teacherEmail string) (models.Teacher, error) {
+type TeacherServiceImpl struct {
+	DB *gorm.DB
+}
+
+func NewTeacherService(db *gorm.DB) TeacherService {
+	return &TeacherServiceImpl{DB: db}
+}
+
+func (s *TeacherServiceImpl) GetTeacher(db *gorm.DB, teacherEmail string) (models.Teacher, error) {
 	teacher := models.Teacher{}
 
 	err := db.Model(teacher).Where("email = ?", teacherEmail).First(&teacher).Error
@@ -19,7 +30,7 @@ func GetTeacher(db *gorm.DB, teacherEmail string) (models.Teacher, error) {
 	return teacher, err
 }
 
-func RemoveDuplicates(users []string) []string {
+func (s *TeacherServiceImpl) RemoveDuplicates(users []string) []string {
 	seen := make(map[string]bool)
 	var result []string
 
@@ -32,7 +43,7 @@ func RemoveDuplicates(users []string) []string {
 	return result
 }
 
-func GetStudentsFromNotification(notification string) []string {
+func (s *TeacherServiceImpl) GetStudentsFromNotification(notification string) []string {
 	var studentEmails []string
 
 	// Define the regular expression pattern to match email addresses
@@ -55,18 +66,20 @@ func GetStudentsFromNotification(notification string) []string {
 	return studentEmails
 }
 
-func RegisterStudentsToTeacher(db *gorm.DB, studentEmails []string, teacherEmail string) error {
-	studentEmails = RemoveDuplicates(studentEmails)
-	teacher, err := GetTeacher(db, teacherEmail)
+func (s *TeacherServiceImpl) RegisterStudentsToTeacher(db *gorm.DB, studentEmails []string, teacherEmail string) error {
+	studentEmails = s.RemoveDuplicates(studentEmails)
+	teacher, err := s.GetTeacher(db, teacherEmail)
 
 	if err != nil {
 		return err
 	}
 
-	students, err := GetStudents(db, studentEmails)
+	studentService := StudentServiceImpl{}
+
+	students, err := studentService.GetStudents(db, studentEmails)
 
 	if err != nil || len(students) != len(studentEmails) {
-		return err
+		return errors.New("student not found")
 	}
 
 	err = db.Model(&teacher).Association("Students").Append(students)
@@ -78,11 +91,11 @@ func RegisterStudentsToTeacher(db *gorm.DB, studentEmails []string, teacherEmail
 	return nil
 }
 
-func GetCommonStudentEmails(db *gorm.DB, teacherEmails []string) ([]string, error) {
+func (s *TeacherServiceImpl) GetCommonStudentEmails(db *gorm.DB, teacherEmails []string) ([]string, error) {
 	var studentEmails []string
 
 	for _, email := range teacherEmails {
-		_, err := GetTeacher(db, email)
+		_, err := s.GetTeacher(db, email)
 		if err != nil {
 			return studentEmails, err
 		}
@@ -108,10 +121,10 @@ func GetCommonStudentEmails(db *gorm.DB, teacherEmails []string) ([]string, erro
 	return studentEmails, nil
 }
 
-func RetrieveForNotifications(db *gorm.DB, teacherEmail string, notification string) ([]string, error) {
+func (s *TeacherServiceImpl) RetrieveForNotifications(db *gorm.DB, teacherEmail string, notification string) ([]string, error) {
 	var studentEmails []string
 
-	_, err := GetTeacher(db, teacherEmail)
+	_, err := s.GetTeacher(db, teacherEmail)
 
 	if err != nil {
 		return studentEmails, err
@@ -132,24 +145,26 @@ func RetrieveForNotifications(db *gorm.DB, teacherEmail string, notification str
 	}
 
 	//Step 2: Get students from notification
-	studentEmailsFromNotification := GetStudentsFromNotification(notification)
+	studentEmailsFromNotification := s.GetStudentsFromNotification(notification)
 
 	if err != nil {
 		return studentEmails, err
 	}
 
+	studentService := StudentServiceImpl{}
+
 	for _, email := range studentEmailsFromNotification {
-		_, err = GetStudent(db, email)
+		_, err = studentService.GetStudent(db, email)
 		if err != nil {
 			return studentEmails, err
 		}
-		if CheckSuspension(db, email) == false {
+		if studentService.CheckSuspension(db, email) == false {
 			studentEmails = append(studentEmails, email)
 		}
 	}
 
 	//Step 3: Remove duplicates
-	studentEmails = RemoveDuplicates(studentEmails)
+	studentEmails = s.RemoveDuplicates(studentEmails)
 
 	return studentEmails, nil
 }

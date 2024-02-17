@@ -5,6 +5,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/lohyangxian/OneCV-Govtech/config"
 	"github.com/lohyangxian/OneCV-Govtech/internal/api"
+	"github.com/lohyangxian/OneCV-Govtech/internal/services"
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -55,7 +56,9 @@ func main() {
 		return
 	}
 
-	server, err := api.NewServer(&configuration, db)
+	studentService := services.NewStudentService(db)
+	teacherService := services.NewTeacherService(db)
+	server, err := api.NewServer(&studentService, &teacherService, &configuration, db)
 	if err != nil {
 		fmt.Printf("Error starting server, %v", err)
 		return

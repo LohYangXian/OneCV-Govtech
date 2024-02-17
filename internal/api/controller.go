@@ -3,7 +3,6 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/lohyangxian/OneCV-Govtech/internal/errors"
-	"github.com/lohyangxian/OneCV-Govtech/internal/services"
 )
 
 // Register registers one or more students to a specified teacher.
@@ -44,7 +43,7 @@ func (s *Server) Register(c *gin.Context) {
 		return
 	}
 
-	err = services.RegisterStudentsToTeacher(s.database, requestBody.StudentEmails, requestBody.TeacherEmail)
+	err = s.TeacherService.RegisterStudentsToTeacher(s.Database, requestBody.StudentEmails, requestBody.TeacherEmail)
 
 	if err != nil {
 		responseError := errors.NewNotFoundError("student or teacher not found")
@@ -96,7 +95,7 @@ func (s *Server) CommonStudents(c *gin.Context) {
 		return
 	}
 
-	students, err := services.GetCommonStudentEmails(s.database, teacherEmails)
+	students, err := s.TeacherService.GetCommonStudentEmails(s.Database, teacherEmails)
 
 	if err != nil {
 		responseError := errors.NewNotFoundError("teacher not found")
@@ -139,7 +138,7 @@ func (s *Server) Suspend(c *gin.Context) {
 		return
 	}
 
-	err = services.SuspendStudent(s.database, requestBody.StudentEmail)
+	err = s.StudentService.SuspendStudent(s.Database, requestBody.StudentEmail)
 
 	if err != nil {
 		responseError := errors.NewNotFoundError("student not found")
@@ -210,7 +209,7 @@ func (s *Server) RetrieveForNotifications(c *gin.Context) {
 		return
 	}
 
-	recipients, err := services.RetrieveForNotifications(s.database, requestBody.TeacherEmail, requestBody.Notification)
+	recipients, err := s.TeacherService.RetrieveForNotifications(s.Database, requestBody.TeacherEmail, requestBody.Notification)
 
 	if err != nil {
 		responseError := errors.NewNotFoundError("student or teacher not found")
