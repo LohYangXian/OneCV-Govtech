@@ -1,20 +1,41 @@
 version: '3'
 
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_USER=root
-      - DB_PASSWORD=root123
-      - DB_NAME=govtechdb_dev
-
   db:
+    container_name: db
     image: postgres:latest
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root123
       POSTGRES_DB: govtechdb_dev
+    ports:
+        - "5432:5432"
+  testdb:
+    container_name: testdb
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root123
+      POSTGRES_DB: govtechdb_test
+    ports:
+      - "5433:5433"
+  app:
+    container_name: app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      SERVER_PORT: 3000
+      DB_HOST: db
+      DB_NAME: govtechdb_dev
+      DB_USER: root
+      DB_PASSWORD: root123
+      DB_PORT: 5432
+      TEST_DB_HOST: testdb
+      TEST_DB_NAME: govtechdb_test
+      TEST_DB_USER: root
+      TEST_DB_PASSWORD: root123
+      TEST_DB_PORT: 5433
+      ENVIRONMENT: dev
+    ports:
+        - "3000:3000"

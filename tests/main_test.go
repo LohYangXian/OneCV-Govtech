@@ -35,6 +35,9 @@ func TestMain(m *testing.M) {
 	// Load the configuration
 	configuration := loadTestConfig()
 
+	// Overwrite configuration values with environment variables
+	overwriteConfig(&configuration)
+
 	// Set up the test database
 	testDB, err = SetUpTestDBConnection(configuration)
 	if err != nil {
@@ -106,7 +109,6 @@ func TearDownTestDB(db *gorm.DB) {
 func loadTestConfig() config.Configurations {
 	viper.SetConfigName("config")
 	viper.AddConfigPath("..")
-	//viper.AddConfigPath("")
 	viper.AutomaticEnv()
 	viper.SetConfigType("yml")
 
@@ -123,4 +125,23 @@ func loadTestConfig() config.Configurations {
 	viper.SetDefault("database.dbname", "govtech_db_test")
 
 	return configuration
+}
+
+func overwriteConfig(configuration *config.Configurations) {
+	// Check if environment variables are set and update configuration values accordingly
+	if envDBHost := os.Getenv("TEST_DB_HOST"); envDBHost != "" {
+		configuration.TestDatabase.TestDBHost = envDBHost
+	}
+	if envDBUser := os.Getenv("TEST_DB_USER"); envDBUser != "" {
+		configuration.TestDatabase.TestDBUser = envDBUser
+	}
+	if envDBPassword := os.Getenv("TEST_DB_PASSWORD"); envDBPassword != "" {
+		configuration.TestDatabase.TestDBPassword = envDBPassword
+	}
+	if envDBName := os.Getenv("TEST_DB_NAME"); envDBName != "" {
+		configuration.TestDatabase.TestDBName = envDBName
+	}
+	if envDBPort := os.Getenv("TEST_DB_PORT"); envDBPort != "" {
+		configuration.TestDatabase.TestPort = envDBPort
+	}
 }
