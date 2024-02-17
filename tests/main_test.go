@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lohyangxian/OneCV-Govtech/config"
 	"github.com/lohyangxian/OneCV-Govtech/internal/api"
+	"github.com/lohyangxian/OneCV-Govtech/internal/services"
 	"github.com/lohyangxian/OneCV-Govtech/tests/mocks"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -24,6 +25,8 @@ var seedStudentsTeachersSQL string
 
 var testDB *gorm.DB
 var err error
+var studentService services.StudentService
+var teacherService services.TeacherService
 
 func TestMain(m *testing.M) {
 	// Set up the test database
@@ -35,6 +38,8 @@ func TestMain(m *testing.M) {
 
 	// Execute SQL script to seed test data
 	SetUpTestDB(testDB)
+	studentService = services.NewStudentService(testDB)
+	teacherService = services.NewTeacherService(testDB)
 
 	// Run the tests
 	code := m.Run()

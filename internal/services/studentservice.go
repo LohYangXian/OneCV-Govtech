@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"github.com/lohyangxian/OneCV-Govtech/internal/models"
 	"gorm.io/gorm"
 )
@@ -34,6 +35,9 @@ func (s *StudentServiceImpl) GetStudent(db *gorm.DB, studentEmail string) (model
 func (s *StudentServiceImpl) GetStudents(db *gorm.DB, studentEmails []string) ([]models.Student, error) {
 	var students []models.Student
 	err := db.Model(models.Student{}).Where("email IN ?", studentEmails).Find(&students).Error
+	if len(students) != len(studentEmails) {
+		return students, errors.New("not all students found")
+	}
 	return students, err
 }
 
