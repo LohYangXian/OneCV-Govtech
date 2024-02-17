@@ -1,28 +1,24 @@
 package tests
 
-//func TestRegister_NotFound(t *testing.T) {
-//
-//	// Set up a mock db
-//	testDB, err := SetUpTestDBConnection()
-//	if err != nil {
-//		t.Errorf("failed to connect to the test database: %v", err)
-//	}
-//
-//	// Seed the test database
-//	SetUpTestDB(testDB)
-//
-//	router, mockServer := SetUpMockServer(testDB)
-//
-//	// Make HTTP request to your API endpoint
-//	router.POST("/api/register", func(c *gin.Context) {
-//		mockServer.Register(c)
-//	})
-//
-//	// Test case 1: Teacher not found
-//	requestBodyTeacherNotFound := `{
-//		"teacher": "teacherNotFound@example.com",
-//		"students": ["student1@example.com", "student2@example.com"]
-//	}`
-//
-//	requestBodyTeacherNotFoundReader := strings.NewReader(requestBodyTeacherNotFound)
-//
+import (
+	"github.com/lohyangxian/OneCV-Govtech/internal/services"
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
+
+func TestGetStudent(t *testing.T) {
+	//Create a new instance of student service
+	studentService := services.NewStudentService(testDB)
+
+	existingStudentEmail := "student1@example.com"
+	existingStudent, err := studentService.GetStudent(testDB, existingStudentEmail)
+	if err != nil {
+		t.Errorf("Error getting student: %v", err)
+	}
+
+	assert.Equal(t, existingStudent.Email, existingStudentEmail, "Emails should be the same")
+
+	nonExistingStudentEmail := "studentNOTFOUND@example.com"
+	_, err = studentService.GetStudent(testDB, nonExistingStudentEmail)
+	assert.Error(t, err, "Error should be returned when student is not found")
+}

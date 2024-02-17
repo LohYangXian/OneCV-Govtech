@@ -4,8 +4,8 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/lohyangxian/OneCV-Govtech/tests/mocks"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -45,7 +45,7 @@ func TestRegister_Success(t *testing.T) {
 	// Serve the HTTP request
 	router.ServeHTTP(w, req)
 
-	require.Equal(t, http.StatusNoContent, w.Code, "Expected status code %d, but got %d", http.StatusNoContent, w.Code)
+	assert.Equal(t, http.StatusNoContent, w.Code, "Expected status code %d, but got %d", http.StatusNoContent, w.Code)
 }
 
 func TestRegister_NotFound(t *testing.T) {
@@ -78,7 +78,7 @@ func TestRegister_NotFound(t *testing.T) {
 	// Serve the HTTP request
 	router.ServeHTTP(w, req)
 
-	require.Equal(t, http.StatusNotFound, w.Code, "Expected status code %d, but got %d", http.StatusNotFound, w.Code)
+	assert.Equal(t, http.StatusNotFound, w.Code, "Expected status code %d, but got %d", http.StatusNotFound, w.Code)
 }
 
 func TestRegister_IncompleteRequestBody(t *testing.T) {
@@ -108,7 +108,7 @@ func TestRegister_IncompleteRequestBody(t *testing.T) {
 	// Serve the HTTP request
 	router.ServeHTTP(w, req)
 
-	require.Equal(t, http.StatusBadRequest, w.Code, "Expected status code %d, but got %d", http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Expected status code %d, but got %d", http.StatusBadRequest, w.Code)
 
 	// Create a new HTTP request
 	requestBodyMissingStudent := `{
@@ -123,7 +123,7 @@ func TestRegister_IncompleteRequestBody(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	require.Equal(t, http.StatusBadRequest, w.Code, "Expected status code %d, but got %d", http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Expected status code %d, but got %d", http.StatusBadRequest, w.Code)
 }
 
 func TestCommonStudents_Success(t *testing.T) {
@@ -149,7 +149,7 @@ func TestCommonStudents_Success(t *testing.T) {
 	// Serve the HTTP request
 	router.ServeHTTP(w, req)
 
-	require.Equal(t, http.StatusOK, w.Code, "Expected status code %d, but got %d", http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusOK, w.Code, "Expected status code %d, but got %d", http.StatusOK, w.Code)
 }
 
 func TestCommonStudents_NotFound(t *testing.T) {
@@ -175,7 +175,7 @@ func TestCommonStudents_NotFound(t *testing.T) {
 	// Serve the HTTP request
 	router.ServeHTTP(w, req)
 
-	require.Equal(t, http.StatusNotFound, w.Code, "Expected status code %d, but got %d", http.StatusNotFound, w.Code)
+	assert.Equal(t, http.StatusNotFound, w.Code, "Expected status code %d, but got %d", http.StatusNotFound, w.Code)
 }
 
 func TestCommonStudents_IncompleteRequestBody(t *testing.T) {
@@ -199,7 +199,7 @@ func TestCommonStudents_IncompleteRequestBody(t *testing.T) {
 	// Serve the HTTP request
 	router.ServeHTTP(w, req)
 
-	require.Equal(t, http.StatusBadRequest, w.Code, "Expected status code %d, but got %d", http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Expected status code %d, but got %d", http.StatusOK, w.Code)
 }
 
 func TestSuspend_Success(t *testing.T) {
@@ -231,7 +231,7 @@ func TestSuspend_Success(t *testing.T) {
 	// Serve the HTTP request
 	router.ServeHTTP(w, req)
 
-	require.Equal(t, http.StatusNoContent, w.Code, "Expected status code %d, but got %d", http.StatusNoContent, w.Code)
+	assert.Equal(t, http.StatusNoContent, w.Code, "Expected status code %d, but got %d", http.StatusNoContent, w.Code)
 }
 
 func TestSuspend_NotFound(t *testing.T) {
@@ -264,7 +264,7 @@ func TestSuspend_NotFound(t *testing.T) {
 	// Serve the HTTP request
 	router.ServeHTTP(w, req)
 
-	require.Equal(t, http.StatusNotFound, w.Code, "Expected status code %d, but got %d", http.StatusNotFound, w.Code)
+	assert.Equal(t, http.StatusNotFound, w.Code, "Expected status code %d, but got %d", http.StatusNotFound, w.Code)
 }
 
 func TestSuspend_IncompleteRequestBody(t *testing.T) {
@@ -293,7 +293,77 @@ func TestSuspend_IncompleteRequestBody(t *testing.T) {
 	// Serve the HTTP request
 	router.ServeHTTP(w, req)
 
-	require.Equal(t, http.StatusBadRequest, w.Code, "Expected status code %d, but got %d", http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Expected status code %d, but got %d", http.StatusBadRequest, w.Code)
+}
+
+func TestRetrieveForNotifications_Success(t *testing.T) {
+	router, mockServer := SetUpMockServer(nil)
+
+	// Make HTTP request to your API endpoint
+	router.POST("/api/retrievefornotifications", func(c *gin.Context) {
+		mockServer.RetrieveForNotifications(c)
+	})
+
+	// Create a new HTTP request
+	requestBody := `{
+		"teacher": "teacher1@example.com",
+		"notification": "Hello students! @student1@example.com @student2@example.com"
+	}`
+
+	mockServer.TeacherService.(*mocks.MockTeacherService).On("RetrieveForNotifications", mock.Anything, mock.Anything, mock.Anything).
+		Return([]string{"student1@example.com", "student2@example.com", "student3@example.com"}, nil)
+
+	// Create a reader from the JSON string
+	requestBodyReader := strings.NewReader(requestBody)
+
+	req, err := http.NewRequest("POST", "/api/retrievefornotifications", requestBodyReader)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Create a response recorder to record the response
+	w := httptest.NewRecorder()
+
+	// Serve the HTTP request
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code, "Expected status code %d, but got %d", http.StatusOK, w.Code)
+}
+
+func TestRetrieveForNotifications_NotFound(t *testing.T) {
+	router, mockServer := SetUpMockServer(nil)
+
+	// Make HTTP request to your API endpoint
+	router.POST("/api/retrievefornotifications", func(c *gin.Context) {
+		mockServer.RetrieveForNotifications(c)
+	})
+
+	// Create a new HTTP request
+	requestBody := `{
+		"teacher": "teacherNOTFOUND@example.com",
+		"notification": "Hello students! @student1@example.com @student2@example.com"
+	}`
+
+	mockServer.TeacherService.(*mocks.MockTeacherService).On("RetrieveForNotifications", mock.Anything, mock.Anything, mock.Anything).
+		Return([]string{""}, errors.New("teacher not found"))
+
+	// Create a reader from the JSON string
+	requestBodyReader := strings.NewReader(requestBody)
+
+	req, err := http.NewRequest("POST", "/api/retrievefornotifications", requestBodyReader)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Create a response recorder to record the response
+	w := httptest.NewRecorder()
+
+	// Serve the HTTP request
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusNotFound, w.Code, "Expected status code %d, but got %d", http.StatusNotFound, w.Code)
 }
 
 func TestRetrieveForNotifications_IncompleteRequestBody(t *testing.T) {
@@ -322,7 +392,7 @@ func TestRetrieveForNotifications_IncompleteRequestBody(t *testing.T) {
 	// Serve the HTTP request
 	router.ServeHTTP(w, req)
 
-	require.Equal(t, http.StatusBadRequest, w.Code, "Expected status code %d, but got %d", http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Expected status code %d, but got %d", http.StatusBadRequest, w.Code)
 
 	// Create a new HTTP request
 	requestBodyMissingNotification := `{
@@ -339,5 +409,5 @@ func TestRetrieveForNotifications_IncompleteRequestBody(t *testing.T) {
 	// Serve the HTTP request
 	router.ServeHTTP(w, req)
 
-	require.Equal(t, http.StatusBadRequest, w.Code, "Expected status code %d, but got %d", http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code, "Expected status code %d, but got %d", http.StatusBadRequest, w.Code)
 }

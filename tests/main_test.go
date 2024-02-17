@@ -22,9 +22,25 @@ var dropTablesSQL string
 //go:embed test_db/000002_seed_students_and_teachers.sql
 var seedStudentsTeachersSQL string
 
+var testDB *gorm.DB
+var err error
+
 func TestMain(m *testing.M) {
+	// Set up the test database
+	testDB, err = SetUpTestDBConnection()
+	if err != nil {
+		fmt.Println("failed to connect to the test database", err)
+		os.Exit(1)
+	}
+
+	// Execute SQL script to seed test data
+	SetUpTestDB(testDB)
+
 	// Run the tests
 	code := m.Run()
+
+	// Tear down the test database
+	TearDownTestDB(testDB)
 
 	// Exit with the result of the tests
 	os.Exit(code)

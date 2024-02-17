@@ -58,7 +58,7 @@ func main() {
 
 	studentService := services.NewStudentService(db)
 	teacherService := services.NewTeacherService(db)
-	server, err := api.NewServer(&studentService, &teacherService, &configuration, db)
+	server, err := api.NewServer(studentService, teacherService, &configuration, db)
 	if err != nil {
 		fmt.Printf("Error starting server, %v", err)
 		return
